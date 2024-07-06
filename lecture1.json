@@ -1,0 +1,24 @@
+{
+    "lecture_title": "Лекция 1: Основы программирования",
+    "lecture_content": "Здесь содержится текст лекции...",
+    "questions": [
+        {
+            "question": "Что такое переменная в программировании?",
+            "answers": [
+                {"option": "Это кусок кода", "is_correct": false},
+                {"option": "Это временное хранилище для данных", "is_correct": true},
+                {"option": "Это функция в программе", "is_correct": false},
+                {"option": "Это результат выполнения программы", "is_correct": false}
+            ]
+        },
+        {
+            "question": "Какой тип данных используется для хранения целых чисел?",
+            "answers": [
+                {"option": "float", "is_correct": false},
+                {"option": "int", "is_correct": true},
+                {"option": "str", "is_correct": false},
+                {"option": "bool", "is_correct": false}
+            ]
+        }
+    ]
+}
