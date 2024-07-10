@@ -3,6 +3,10 @@ import os
 import telebot
 from telebot import types
 
+# Загрузите список разрешённых пользователей
+with open('allowed_users.json', 'r', encoding='utf-8') as file:
+    allowed_users = json.load(file)['allowed_users']
+
 bot = telebot.TeleBot('7039781421:AAEUqlh32yopQK8y3nKv1ZwB3CyKJLTVVcI')
 
 # Список лекций
@@ -51,9 +55,21 @@ def get_user_progress(user_id):
     else:
         return 0, 0, 0
 
+# Функция для проверки аутентификации пользователя
+def is_user_authorized(username):
+    return username in allowed_users
+
 # Обработчик команды /start
 @bot.message_handler(commands=['start'])
 def start(message):
+    username = message.from_user.username
+    if not is_user_authorized(username):
+        bot.send_message(
+            message.chat.id,
+            f'Извините, {message.from_user.first_name}, у вас нет доступа к этому боту.'
+        )
+        return
+
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton('Пройти курс лекций', callback_data='course'))
     markup.add(types.InlineKeyboardButton('Выполнить тесты', callback_data='tests'))
@@ -67,6 +83,14 @@ def start(message):
 # Обработчик выбора курса лекций
 @bot.callback_query_handler(func=lambda call: call.data == 'course')
 def course_callback(call):
+    username = call.from_user.username
+    if not is_user_authorized(username):
+        bot.send_message(
+            call.message.chat.id,
+            f'Извините, {call.from_user.first_name}, у вас нет доступа к этому боту.'
+        )
+        return
+
     user_id = call.from_user.id
     markup = types.InlineKeyboardMarkup()
     for i, lecture in enumerate(lectures, 1):
@@ -87,6 +111,14 @@ def course_callback(call):
 # Обработчик выбора лекции
 @bot.callback_query_handler(func=lambda call: call.data.startswith('lecture_'))
 def lecture_callback(call):
+    username = call.from_user.username
+    if not is_user_authorized(username):
+        bot.send_message(
+            call.message.chat.id,
+            f'Извините, {call.from_user.first_name}, у вас нет доступа к этому боту.'
+        )
+        return
+
     lecture_number = int(call.data.split('_')[1])
     lecture = read_lecture(lecture_number)
     if lecture:
@@ -110,6 +142,14 @@ def lecture_callback(call):
 # Обработчик кнопки "Назад" для возврата к выбору действия
 @bot.callback_query_handler(func=lambda call: call.data == 'back_to_main')
 def back_to_main_callback(call):
+    username = call.from_user.username
+    if not is_user_authorized(username):
+        bot.send_message(
+            call.message.chat.id,
+            f'Извините, {call.from_user.first_name}, у вас нет доступа к этому боту.'
+        )
+        return
+
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton('Пройти курс лекций', callback_data='course'))
     markup.add(types.InlineKeyboardButton('Выполнить тесты', callback_data='tests'))
@@ -124,6 +164,14 @@ def back_to_main_callback(call):
 # Обработчик выбора тестов
 @bot.callback_query_handler(func=lambda call: call.data == 'tests')
 def tests_callback(call):
+    username = call.from_user.username
+    if not is_user_authorized(username):
+        bot.send_message(
+            call.message.chat.id,
+            f'Извините, {call.from_user.first_name}, у вас нет доступа к этому боту.'
+        )
+        return
+
     user_id = call.from_user.id
     markup = types.InlineKeyboardMarkup()
     for i, lecture in enumerate(lectures, 1):
@@ -142,6 +190,14 @@ def tests_callback(call):
 # Обработчик кнопки "Пройти тест по лекции"
 @bot.callback_query_handler(func=lambda call: call.data.startswith('test_'))
 def test_callback(call):
+    username = call.from_user.username
+    if not is_user_authorized(username):
+        bot.send_message(
+            call.message.chat.id,
+            f'Извините, {call.from_user.first_name}, у вас нет доступа к этому боту.'
+        )
+        return
+
     lecture_number = int(call.data.split('_')[1])
     lecture = read_lecture(lecture_number)
     if lecture:
@@ -170,6 +226,14 @@ def send_question(chat_id, lecture_number, question_index, questions, correct_an
 # Обработчик выбора ответа
 @bot.callback_query_handler(func=lambda call: call.data.startswith('answer_'))
 def answer_callback(call):
+    username = call.from_user.username
+    if not is_user_authorized(username):
+        bot.send_message(
+            call.message.chat.id,
+            f'Извините, {call.from_user.first_name}, у вас нет доступа к этому боту.'
+        )
+        return
+
     try:
         data = call.data.split('_')
         lecture_number = int(data[1])
@@ -208,6 +272,14 @@ def answer_callback(call):
 # Обработчик кнопки "Прогресс"
 @bot.callback_query_handler(func=lambda call: call.data == 'progress')
 def progress_callback(call):
+    username = call.from_user.username
+    if not is_user_authorized(username):
+        bot.send_message(
+            call.message.chat.id,
+            f'Извините, {call.from_user.first_name}, у вас нет доступа к этому боту.'
+        )
+        return
+
     user_id = call.from_user.id
     completed_lectures, total_tests, test_percentage = get_user_progress(user_id)
     markup = types.InlineKeyboardMarkup()
@@ -220,5 +292,3 @@ def progress_callback(call):
     )
 
 bot.polling(none_stop=True)
-
-##"dfngkdnf"
